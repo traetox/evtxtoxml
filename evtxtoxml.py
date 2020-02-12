@@ -2,6 +2,7 @@ import Evtx.Evtx as evtx
 #import Evtx.Views as e_views
 import argparse
 #import xml.etree.ElementTree as ET
+import xmlformatter
 
 def main():
     parser = argparse.ArgumentParser(description="Dump a binary EVTX file into XML.")
@@ -17,13 +18,14 @@ def main():
 
     output_interval = 10000
     output_count = 0
-    file.write("<Events>")
+    #file.write("<Events>")
+    fmtr = xmlformatter.Formatter(compress=True)
     with evtx.Evtx(args.inputfile) as log:
         for chunk in log.chunks():
             for record in chunk.records():
                 try:
-                    s = record.xml()
-                    file.write(s)
+                    s = fmtr.format_string(record.xml())
+                    file.write(s+"\n")
                     #root = ET.fromstring(s)
                     #print root.findall('EventData')
                     #print root.find('{http://schemas.microsoft.com/win/2004/08/events/event}EventID')
@@ -36,7 +38,7 @@ def main():
                     error_count = error_count + 1
                     print "UnicodeDecode Error encountered skipping entry Errors[%d]" % error_count
                     continue
-    file.write("</Events>")
+    #file.write("</Events>")
     #print norm_count, error_count
     file.close()
 
